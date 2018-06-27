@@ -53,22 +53,30 @@ public class KubernetesCrudDispatcher extends CrudDispatcher {
     MockResponse response = new MockResponse();
     List<String> items = new ArrayList<>();
     AttributeSet query = attributeExtractor.extract(path);
+    
+    System.err.println("Query string: '" + path + "'");
+    System.err.println("Query attributes: '" + query + "'");
 
     for (Map.Entry<AttributeSet, String> entry : map.entrySet()) {
+      System.err.println("Comparing attributes: '" + entry.getKey() + "'");
       if (entry.getKey().matches(query)) {
-        LOGGER.debug("Entry found for query {} : {}", query, entry);
+        LOGGER.info("Entry found for query {} : {}", query, entry);
+        System.err.println("Entry found for query " + query + " : " + entry);
         items.add(entry.getValue());
       }
     }
 
     if (query.containsKey(KubernetesAttributesExtractor.NAME)) {
       if (!items.isEmpty()) {
+        System.err.println("Return single: " + items.get(0));
         response.setBody(items.get(0));
         response.setResponseCode(200);
       } else {
+        System.err.println("Not found");
         response.setResponseCode(404);
       }
     } else {
+      System.err.println("Return list: " + items.size());
       response.setBody(responseComposer.compose(items));
       response.setResponseCode(200);
     }
